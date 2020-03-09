@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- configs 区分环境配置 -->
+    <import resource="classpath:spring/spring-config-dev.xml" />
+    <import resource="classpath:spring/spring-config-test.xml" />
+    <import resource="classpath:spring/spring-config-gamma.xml" />
+    <import resource="classpath:spring/spring-config-idc.xml" />
+
+    <import resource="classpath:spring/spring-ducc.xml" />
+    <import resource="classpath:spring/spring-app.xml" />
+    <import resource="classpath:spring/spring-ump.xml" />
+    <import resource="classpath:spring/spring-jsf-provider.xml" />
+    <import resource="classpath:spring/spring-jsf-consumer.xml" />
+    <import resource="classpath:spring/spring-jmq.xml" />
+    <import resource="classpath:spring/spring-jss.xml" />
+    <import resource="classpath:spring/spring-jimdb.xml" />
+<!--    <import resource="classpath:spring/spring-hystrix.xml" />-->
+</beans>

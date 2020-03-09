@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:c="http://www.springframework.org/schema/c" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--注解扫描 只扫描controller层-->
+    <context:component-scan base-package="com.paipai.pop" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController"/>
+        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+        <context:include-filter type="annotation" expression="org.springframework.context.annotation.Configuration"/>
+    </context:component-scan>
+
+    <!--启用类代理-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <!--参数注解解析器-->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter" c:defaultCharset="UTF-8"/>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="fastJsonConfig" ref="fastJsonConfig"/>
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+        <mvc:argument-resolvers>
+            <!--业务参数-->
+            <bean class="com.jd.paipai.commons.jdcolor.support.JsonBodyMethodArgumentResolver" />
+        </mvc:argument-resolvers>
+    </mvc:annotation-driven>
+
+    <!--参数校验-->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"
+          p:providerClass="org.hibernate.validator.HibernateValidator" />
+
+    <bean id="fastJsonConfig" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+        <property name="serializerFeatures">
+            <list>
+                <value type="com.alibaba.fastjson.serializer.SerializerFeature">WriteMapNullValue</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--校验reffer和pin-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/abc/**" />
+            <bean class="com.cc.pop.gg.vender.web.interceptor.SpecialRequestrInterceptor">
+                <property name="allowedReferers">
+                    <set>
+                        <value>r.com</value>
+                        <value>fr.local</value>
+                        <value>v.com</value>
+                        <value>vb.local</value>
+                        <value>servicewechat.com</value>
+                    </set>
+                </property>
+                <property name="noRequiredLoginPaths">
+                    <set>
+                        <value>/test</value>
+                        <value>/f/test</value>
+                    </set>
+                </property>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- MultipartResolver处理器，设置最大上传文件大小   5M=5*1024*1024(B)=5242880 bytes -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!-- 指定所上传文件的总大小不能超过1M。注意maxUploadSize属性的限制不是针对单个文件，而是所有文件的容量之和 -->
+        <property name="maxUploadSize" value="10485760"/><!-- 由于前端需要后端返回 大于5M的自定义信息 所以这里限制放开 -->
+        <!-- 最大内存大小 (40960)-->
+        <property name="maxInMemorySize" value="40960" />
+    </bean>
+    
+    <mvc:default-servlet-handler/>
+
+    <!--注入SpringSwaggerConfig-->
+    <mvc:resources location="classpath:/META-INF/resources/" mapping="swagger-ui.html"/>
+    <mvc:resources location="classpath:/META-INF/resources/webjars/" mapping="/webjars/**"/>
+</beans>
